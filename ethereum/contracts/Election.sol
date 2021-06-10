@@ -1,4 +1,27 @@
+// SPDX-License-Identifier: MIT
 pragma solidity ^0.4.26;
+contract ElectionFactory
+{
+    address manager;
+    address[] public elections;
+    constructor() public
+    {
+        manager = msg.sender;
+    }
+    modifier managerAccess(){
+        require(msg.sender == manager);
+        _;
+    }
+    function addElection(string memory _desc) public managerAccess
+    {
+        address election = address(new Election(_desc));
+        elections.push(election);
+    } 
+    function removeElection(uint id) public managerAccess
+    {
+        delete elections[id];
+    }
+}
 contract Election
 {
     address public admin;
@@ -8,10 +31,12 @@ contract Election
         string name;
         uint voteCount;
     }
+    string public description;
     mapping(address=>bool) public voters;
     mapping(uint => Candidate) public candidates;
-    constructor() public 
+    constructor(string memory _desc) public
     {
+        description = _desc;
         admin = msg.sender;
     }
     event votedEvent(uint _candidate_id); 
