@@ -10,5 +10,6 @@ let web3;
 //     const provider = new Web3.providers.HttpProvider('https://localhost:7545');
 //     web3 = new Web3(provider);
 // }
+// const provider = new Web3.providers.HttpProvider('https://localhost:7545');
 web3 = new Web3(ganache.provider());
 module.exports =  web3;
