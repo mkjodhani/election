@@ -43,6 +43,7 @@ contract Election
     string public name;
     mapping(address=>bool) public voters;
     mapping(uint => Candidate) public candidates;
+    
     constructor(address _admin,string memory _name,string memory _desc) public
     {
         name = _name;

@@ -1,12 +1,12 @@
 import React ,{Component} from 'react'
-import { Icon, Card, Grid } from 'semantic-ui-react'
+import { Icon, Card } from 'semantic-ui-react'
 class ElectionCard extends Component
 {
     selectElection = () =>
     {
         console.log(`/election/`);
-        window.history.pushState({},`/election/`);
-        window.location.replace(`/election/`);
+        window.history.pushState({},`/election/${this.props.address}`);
+        window.location.replace(`/election/${this.props.address}`);
     }
     render(){
         return( 

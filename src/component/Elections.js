@@ -1,5 +1,5 @@
 import React ,{Component} from 'react';
-import { Icon, Card, Grid } from 'semantic-ui-react';
+import { Grid } from 'semantic-ui-react';
 import ElectionCard from '../component/ElectionCard';
 
 class Election extends Component{
@@ -57,7 +57,7 @@ class Election extends Component{
         ]
         return(
             <Grid style={{marginTop:"20px"}}>
-                {elections.map(election => <Grid.Column width={4}><ElectionCard id="1" name={election.name} description={election.description} totalVoters={election.totalVoters}/></Grid.Column>)}
+                {elections.map(election => <Grid.Column width={4}><ElectionCard id="1" name={election.name} description={election.description} totalVoters={election.totalVoters} address={election.address}/></Grid.Column>)}
             </Grid>
         );
     }
