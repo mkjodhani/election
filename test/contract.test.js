@@ -1,90 +1,117 @@
-const assert = require('assert')
-const web3 = require('../ethereum/web3');
-const compiledFactory = require('../ethereum/build/ElectionFactory.json');
-const compiledElection = require('../ethereum/build/Election.json')
-let electionFactory;
-let accounts;
-beforeEach( async () =>
-{
+const ElectionFactory = require('../ethereum/build/ElectionFactory.json')
+const Election = require('../ethereum/build/Election.json')
+const Web3 = require('web3')
+const ganache = require('ganache-cli')
+const web3 = new Web3(ganache.provider())
+const assert = require('assert');
+let accounts,electionFactory;
+beforeEach(async ()=>{
     accounts = await web3.eth.getAccounts();
-    electionFactory = await new web3.eth.Contract(JSON.parse(compiledFactory.interface))
-    .deploy({data:compiledFactory.bytecode})
-    .send({from:accounts[0],gas:'1000000'});
+    electionFactory = await new web3.eth.Contract(JSON.parse(ElectionFactory.interface)).deploy({
+        data:ElectionFactory.bytecode
+    })
+    .send({
+        from:accounts[0],
+        gas:'1000000'
+    })
 })
-describe('Election Factory Testing',async ()=>{
-    it('First Test',async ()=>
+describe('ElectionFactory Test',() =>{
+    it('Election make', async () =>
     {
-        const addr = await electionFactory.methods.manager().call();
-        assert.strictEqual(addr,accounts[0])
+        const _name = "mkjodhani",_desc = "mkjodhani Description";
+        
+        await electionFactory.methods.addElection(_name,_desc).send({
+            from:accounts[0],
+            gas:'1000000'
+        })
+        const eleAddr = await electionFactory.methods.elections(1).call();
+        const election = await new web3.eth.Contract(JSON.parse(Election.interface),eleAddr);
+        const admin = await election.methods.admin().call();
+        const candidateCount = await election.methods.candidateCount().call();
+        const description = await election.methods.description().call();
+        const name = await election.methods.name().call();
+        assert.strictEqual(_name,name);
+        assert.strictEqual(_desc,description);
+        assert.strictEqual(candidateCount,'0');
+        assert.strictEqual(admin,accounts[0]);
     })
-    it('Adding an Election',async ()=>
+    it('Election Remove', async () =>
     {
-        const descInput =  "Description for the Election";
-        const nameInput =  "Name for the Election";
-        const addr = await electionFactory.methods.addElection(nameInput,descInput).send({
-            from:accounts[0],gas:'1000000'
-        });
-        const addressElection = await electionFactory.methods.elections(0).call();
-        const election = new web3.eth.Contract(JSON.parse(compiledElection.interface),addressElection);
-        // const desc = await election.methods.description().call();
-        // const name = await election.methods.name().call();
-        // assert.strictEqual(descInput,desc,"Description is right");
-        // assert.strictEqual(nameInput,name,'Name is right');
+        const _name = "mkjodhani",_desc = "mkjodhani Description";
+        await electionFactory.methods.addElection(_name,_desc).send({
+            from:accounts[0],
+            gas:'1000000'
+        })
+        await electionFactory.methods.removeElection(1).send({
+            from:accounts[0],
+            gas:'1000000'
+        })
+        const eleAddr = await electionFactory.methods.elections(1).call();
+        const election = await new web3.eth.Contract(JSON.parse(Election.interface),eleAddr);
+        try {
+            await election.methods.admin().call();
+            assert(false)
+        } catch (error) {
+            assert(true)
+        }
     })
-    // it('can remove an Election only once',async ()=>
-    // {
-    //     const descInput =  "Description for the Election",nameInput =  "Name for the Election";
-    //     await electionFactory.methods.addElection(nameInput,descInput).send({
-    //         from:accounts[0],gas:'1000000'
-    //     });
-    //     const addressElection = await electionFactory.methods.elections(0).call();
-    //     const election = new web3.eth.Contract(JSON.parse(compiledElection.interface),addressElection);
-    //     assert.ok(election);
-    //     await electionFactory.methods.removeElection(1).send({
-    //         from:accounts[0],gas:'1000000'
-    //     });
-    //     try {
-    //         await electionFactory.methods.removeElection(1).send({
-    //             from:accounts[0],gas:'1000000'
-    //         });
-    //         assert(false);    
-    //     } catch (error) {
-    //         assert(true);   
-    //     }
-    // });
-    // it('Adding Candidate to Election',async ()=>
-    // {
-    //     const descInput =  "Description for the Election",nameInput =  "Name for the Election";
-    //     await electionFactory.methods.addElection(nameInput,descInput).send({
-    //         from:accounts[0],gas:'1000000'
-    //     });
-    //     const addressElection = await electionFactory.methods.elections(0).call();
-    //     const election = new web3.eth.Contract(JSON.parse(compiledElection.interface),addressElection);
-    //     const candidateName = "mkjodhani";
-    //     await election.methods.addCandidate(candidateName).send({
-    //         from:accounts[0],gas:"1000000"
-    //     })
-    //     const cand = await election.methods.candidates(1).call();
-    //     assert.strictEqual(candidateName ,cand['name']);
-    //     assert.strictEqual('1' ,cand['id']);
-    //     assert.strictEqual('0' ,cand['voteCount']);
-    // });
-    // it('voting Candidate to Election',async ()=>
-    // {
-    //     const descInput =  "Description for the Election",nameInput =  "Name for the Election";
-    //     await electionFactory.methods.addElection(nameInput,descInput).send({
-    //         from:accounts[0],gas:'1000000'
-    //     });
-    //     const addressElection = await electionFactory.methods.elections(0).call();
-    //     const election = new web3.eth.Contract(JSON.parse(compiledElection.interface),addressElection);
-    //     const candidateName = "mkjodhani";
-    //     await election.methods.addCandidate(candidateName).send({
-    //         from:accounts[0],gas:"1000000"
-    //     })
-    //     await election.methods.vote(1).send({
-    //         from:accounts[1],gas:"1000000"
-    //     })
-    //     const cand = await election.methods.candidates(1).call();
-    //     assert.strictEqual('1' ,cand['voteCount']);
-    // })
-});
+    it('can remove Election only once', async () =>
+    {
+        const _name = "mkjodhani",_desc = "mkjodhani Description";
+        await electionFactory.methods.addElection(_name,_desc).send({
+            from:accounts[0],
+            gas:'1000000'
+        })
+        await electionFactory.methods.removeElection(1).send({
+            from:accounts[0],
+            gas:'1000000'
+        })
+        try {
+            await electionFactory.methods.removeElection(1).send({
+                from:accounts[0],
+                gas:'1000000'
+            })           
+            assert(false)
+        } catch (error) {
+            assert(true)
+        }
+    });
+    
+
+
+    it('Adding Candidate to Election',async ()=>
+    {
+        const _name = "mkjodhani",_desc = "mkjodhani Description",_candidateName = "bhalani";
+        await electionFactory.methods.addElection(_name,_desc).send({
+            from:accounts[0],
+            gas:'1000000'
+        })
+        const eleAddr = await electionFactory.methods.elections(1).call();
+        const election = await new web3.eth.Contract(JSON.parse(Election.interface),eleAddr);
+        await election.methods.addCandidate(_candidateName).send({
+            from:accounts[0],gas:"1000000"
+        })
+        const cand = await election.methods.candidates(1).call();
+        assert.strictEqual(_candidateName ,cand['name']);
+        assert.strictEqual('1' ,cand['id']);
+        assert.strictEqual('0' ,cand['voteCount']);
+    });
+    it('voting Candidate to Election',async ()=>
+    {
+        const _name = "mkjodhani",_desc = "mkjodhani Description",_candidateName = "bhalani";
+        await electionFactory.methods.addElection(_name,_desc).send({
+            from:accounts[0],
+            gas:'1000000'
+        })
+        const eleAddr = await electionFactory.methods.elections(1).call();
+        const election = await new web3.eth.Contract(JSON.parse(Election.interface),eleAddr);
+        await election.methods.addCandidate(_candidateName).send({
+            from:accounts[0],gas:"1000000"
+        })
+        await election.methods.vote(1).send({
+            from:accounts[1],gas:"1000000"
+        })
+        const cand = await election.methods.candidates(1).call();
+        assert.strictEqual('1' ,cand['voteCount']);
+    })
+})

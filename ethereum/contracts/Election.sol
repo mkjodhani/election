@@ -13,8 +13,8 @@ contract ElectionFactory
         require(msg.sender == manager);
         _;
     }
-    event electionAdded(address addr);
-    event electionDeleted(address addr);
+    // event electionAdded(address addr);
+    // event electionDeleted(address addr);
     function addElection(string memory _name,string memory _desc) public 
     {
         address election = address(new Election(msg.sender,_name,_desc));
