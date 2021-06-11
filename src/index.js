@@ -2,10 +2,23 @@ import React from 'react';
 import ReactDOM from 'react-dom';
 import reportWebVitals from './reportWebVitals';
 import App from './App'
+import Election from './component/Election';
+import {BrowserRouter as Router ,Route ,Switch } from 'react-router-dom'
+import NewElection from './component/NewElection';
 ReactDOM.render(
-  <React.StrictMode>
-    <App />
-  </React.StrictMode>,
+    <Router>
+      <Switch>
+        <Route exact path="/">
+          <App/>
+        </Route>
+        <Route exact path="/election/new">
+          <NewElection/>
+        </Route>
+        <Route exact path="/election/:id">
+          <Election/>
+        </Route>
+      </Switch>
+    </Router>,
   document.getElementById('root')
 );
 

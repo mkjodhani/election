@@ -5,7 +5,7 @@ class Layout extends Component
 {
     render(){
     return(
-        <Container>
+        <Container style={{padding:"20px",paddingTop:"50px"}}>
             {this.props.children}
         </Container>
     )

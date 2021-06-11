@@ -57,7 +57,7 @@ class Election extends Component{
         ]
         return(
             <Grid style={{marginTop:"20px"}}>
-                {elections.map(election => <Grid.Column width={4}><ElectionCard id="1" name={election.name} description={election.description} totalVoters={election.totalVoters} address={election.address}/></Grid.Column>)}
+                {elections.map((election,index) => <Grid.Column width={4}><ElectionCard id={index} {...election}/></Grid.Column>)}
             </Grid>
         );
     }
