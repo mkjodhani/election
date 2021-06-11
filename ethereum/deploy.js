@@ -1,11 +1,18 @@
-const ElectionFactory = require('./build/ElectionFactory.json')
-const web3 = require('./web3')
-const deploy = async ()=>{
+const Web3 = require('web3')
+const HDWalletProvider = require('truffle-hdwallet-provider');
+const provider = new HDWalletProvider("tissue like claw draft begin impulse speed online exact purity measure letter","https://rinkeby.infura.io/v3/281808df56034ff6bcba3da70667f4cd");
+const web3 = new Web3(provider);
+const ElectionFactory = require('./build/ElectionFactory.json');
+
+(async () =>{
     const accounts = await web3.eth.getAccounts();
-    const addr =  await new web3.eth.Contract(JSON.parse(ElectionFactory.interface))
+    console.log('attempting to deploy from account :',accounts[0]);
+    const result = await new web3.eth.Contract(JSON.parse(ElectionFactory.interface))
     .deploy({data:ElectionFactory.bytecode})
-    .send({from:accounts[0],gas:'1000000'});
-    console.log(addr.options.address);
-};
-deploy();
-// 0xCed71BF565Ab6f2dB8592293C35FbFFF9D034C44
+    .send({
+        from:accounts[0],
+        gas:1000000
+    });
+    console.log('Contarct Deployed to ' + result.options.address);
+    // 0x083afbE532918C8feC1D19bd17479C2FdF7a938c
+})();

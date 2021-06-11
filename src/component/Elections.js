@@ -1,65 +1,26 @@
-import React ,{Component} from 'react';
+import React, { Component } from 'react';
 import { Grid } from 'semantic-ui-react';
 import ElectionCard from '../component/ElectionCard';
-
-class Election extends Component{
+class Elections extends Component
+{
+    constructor(props)
+    {
+        super(props);
+        this.state = {elections:[]}
+    }
+    async componentDidMount() {
+        this.setState( {elections:this.props.elections});
+    }
     render(){
-        var elections = [
-            {
-                address:"0xB437f19C38badA5B3704cC53B6416f3BBD61B399",
-                name:"election",
-                description:"description",
-                totalVoters:"3"
-            },
-            {
-                address:"0xB437f19C38badA5B3704cC53B6416f3BBD61B399",
-                name:"election",
-                description:"description",
-                totalVoters:"3"
-            },
-            {
-                address:"0xB437f19C38badA5B3704cC53B6416f3BBD61B399",
-                name:"election",
-                description:"description",
-                totalVoters:"3"
-            },
-            {
-                address:"0xB437f19C38badA5B3704cC53B6416f3BBD61B399",
-                name:"election",
-                description:"description",
-                totalVoters:"3"
-            },
-            {
-                address:"0xB437f19C38badA5B3704cC53B6416f3BBD61B399",
-                name:"election",
-                description:"description",
-                totalVoters:"3"
-            },
-            {
-                address:"0xB437f19C38badA5B3704cC53B6416f3BBD61B399",
-                name:"election",
-                description:"description",
-                totalVoters:"3"
-            },
-            {
-                address:"0xB437f19C38badA5B3704cC53B6416f3BBD61B399",
-                name:"election",
-                description:"description",
-                totalVoters:"3"
-            },
-            {
-                address:"0xB437f19C38badA5B3704cC53B6416f3BBD61B399",
-                name:"election",
-                description:"description",
-                totalVoters:"3"
-            },
-            
-        ]
         return(
             <Grid style={{marginTop:"20px"}}>
-                {elections.map((election,index) => <Grid.Column width={4}><ElectionCard id={index} {...election}/></Grid.Column>)}
+                {this.state.elections.map((election,index) => {
+                    console.log( index+"---------"+election);
+                    return <Grid.Column key={index +1}  width={4}><ElectionCard id={index+1} address={election}/></Grid.Column>
+                })}
             </Grid>
         );
+    
     }
 }
-export default Election;
+export default Elections;

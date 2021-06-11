@@ -2,17 +2,23 @@ import React,{Component} from "react";
 import { Grid,Card } from "semantic-ui-react";
 class Candidates extends Component
 {
+    constructor(props){
+        super(props);
+        this.state = {candidateList:props.candidates}
+    }
+    async componentDidMount(){
+        // console.log("Candidates------------");
+        // console.log(this.state);
+    }
     render(){
-        const candidateList =['Mayur' ,'Sachin' ,'Meet'];
         return(
             <Grid>
-                {candidateList.map(name =>{
-                    return(<Grid.Column width={5}>
+                {this.state.candidateList.map((cand) =>{
+                    return(<Grid.Column width={3} key={cand.id}>
                         <Card
+                            header={cand.name}
                             image='https://react.semantic-ui.com/images/avatar/large/elliot.jpg'
-                            header={name}
-                            meta='Candidate'
-                            description={`${name} is a Candidate for the Election`}
+                            key={cand.id}
                         />
                     </Grid.Column>)
                 })}

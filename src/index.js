@@ -14,7 +14,7 @@ ReactDOM.render(
         <Route exact path="/election/new">
           <NewElection/>
         </Route>
-        <Route exact path="/election/:id">
+        <Route exact path="/election/:address">
           <Election/>
         </Route>
       </Switch>

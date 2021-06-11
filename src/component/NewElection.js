@@ -1,6 +1,6 @@
 import {Component} from "react";
 import Layout from "../component/Layout";
-import { Form ,Input,Button,Message} from 'semantic-ui-react';
+import { Form ,Input,Button,Message,Container} from 'semantic-ui-react';
 import { Link } from 'react-router-dom'
 
 class NewElection extends Component
@@ -25,17 +25,19 @@ class NewElection extends Component
                 <Link to='/'>
                     <Button  style={{marginBottom:'10px'}} primary content="BacK" ></Button>
                 </Link>
-                <Form onSubmit={this.createElection}>
-                    <Form.Field required>
-                        <Input label= "Name"></Input>
-                    </Form.Field>
-                    <Form.Field required>
-                        <Input label="Description"></Input>
-                    </Form.Field>
-                    <Button primary loading={this.state.loading} icon="add circle" content="Create" floated='right'/>
-                </Form>
-                <br/>
-                {this.state.isError && <Message style={{marginTop:'25px'}} error header="Oops!" content={this.state.error}></Message>}
+                <Container style={{width:'50vw'}} >
+                    <Form onSubmit={this.createElection}>
+                        <Form.Field required>
+                            <Input label= "Name"></Input>
+                        </Form.Field>
+                        <Form.Field required>
+                            <Input label="Description"></Input>
+                        </Form.Field>
+                        <Button primary loading={this.state.loading} icon="add circle" content="Create" floated='right'/>
+                    </Form>
+                    <br/>
+                    {this.state.isError && <Message style={{marginTop:'25px'}} error header="Oops!" content={this.state.error}></Message>}
+                </Container>
             </Layout>
         );
     }
