@@ -1,6 +1,6 @@
 const Web3 = require('web3')
 const HDWalletProvider = require('truffle-hdwallet-provider');
-const provider = new HDWalletProvider("------------------put the twelve word key of metamask------------------","------------------infura blockchain node's url------------------");
+const provider = new HDWalletProvider("tissue like claw draft begin impulse speed online exact purity measure letter","https://rinkeby.infura.io/v3/281808df56034ff6bcba3da70667f4cd");
 const web3 = new Web3(provider);
 const ElectionFactory = require('./build/ElectionFactory.json');
 
