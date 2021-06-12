@@ -6,22 +6,20 @@ class ElectionCard extends Component
 {
     constructor(props){
         super(props);
-        this.state ={address:'',election:[]}
+        this.state ={address:'',election:{},isready:false}
     }
     async componentDidMount() {
-        console.log("Elections Card JS : "+this.props.address);
         const electionContract = Election(this.props.address);
         const admin = await electionContract.methods.admin().call();
         const candidateCount = await electionContract.methods.candidateCount().call();
         const description = await electionContract.methods.description().call();
         const name = await electionContract.methods.name().call();
-        console.log({admin,candidateCount,description,name});
         this.setState({address: this.props.address,election:{admin,candidateCount,description,name}});
+        this.setState({isready:true})
     }
     render(){
-        //  return(<h1>Election:{this.state.address}</h1>)
-        const {admin,candidateCount,description,name} = this.state.election;
-        if(this.state.election)
+        const {candidateCount,description,name} = this.state.election;
+        if(this.state.election && this.state.isready)
         {
             return(
                 <Link to={`election/${this.state.address}`}>
@@ -33,7 +31,7 @@ class ElectionCard extends Component
                 </Link> 
             );
         }
-        return(<>NOthind</>);
+        return(<></>);
     }
 }
 export default ElectionCard;

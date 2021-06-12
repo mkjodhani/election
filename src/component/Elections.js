@@ -15,7 +15,6 @@ class Elections extends Component
         return(
             <Grid style={{marginTop:"20px"}}>
                 {this.state.elections.map((election,index) => {
-                    console.log( index+"---------"+election);
                     return <Grid.Column key={index +1}  width={4}><ElectionCard id={index+1} address={election}/></Grid.Column>
                 })}
             </Grid>

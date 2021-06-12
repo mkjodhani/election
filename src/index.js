@@ -5,6 +5,7 @@ import App from './App'
 import Election from './component/Election';
 import {BrowserRouter as Router ,Route ,Switch } from 'react-router-dom'
 import NewElection from './component/NewElection';
+import NewCandidate from './component/NewCandidate';
 ReactDOM.render(
     <Router>
       <Switch>
@@ -16,6 +17,9 @@ ReactDOM.render(
         </Route>
         <Route exact path="/election/:address">
           <Election/>
+        </Route>
+        <Route exact path="/election/:address/newCandidate">
+          <NewCandidate/>
         </Route>
       </Switch>
     </Router>,

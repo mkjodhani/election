@@ -6,10 +6,6 @@ class Candidates extends Component
         super(props);
         this.state = {candidateList:props.candidates}
     }
-    async componentDidMount(){
-        // console.log("Candidates------------");
-        // console.log(this.state);
-    }
     render(){
         return(
             <Grid>

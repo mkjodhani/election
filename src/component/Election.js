@@ -1,4 +1,4 @@
-import { Component, useState } from "react";
+import { Component } from "react";
 import {
   Container,
   Divider,
@@ -12,6 +12,7 @@ import { Link } from "react-router-dom";
 import ElectionFetch from "../assets/eth/Election";
 // import ElectionChart from '../component/ElectionChart'
 import Candidates from "../component/Candidates";
+import web3 from "../assets/eth/web3";
 
 class Election extends Component {
   constructor(props) {
@@ -19,7 +20,7 @@ class Election extends Component {
     this.state = {
       loading: false,
       errorFlag: false,
-      value: "",
+      value:-1,
       ready: false,
       error: "Default Error!",
       address: "",
@@ -28,24 +29,10 @@ class Election extends Component {
       description: "",
       name: "",
       candidates: "",
-      candidatesList:[],
-      text:''
+      candidatesList: [],
     };
   }
-  vote() {
-    //voting system...
-  }
-  makeCandidateList()
-  {
-    let list = [];
-    for (var i in this.state.candidates) 
-    {
-        const {id,name} = this.state.candidates[i];
-        list.push({"id":id,"value":id,"text":name})
-    }
-    console.log(list);
-    return list;
-  }
+ 
   async componentDidMount() {
     const address = this.props.match.params.address;
     const electionContract = ElectionFetch(address);
@@ -55,7 +42,8 @@ class Election extends Component {
       .call();
     const description = await electionContract.methods.description().call();
     const name = await electionContract.methods.name().call();
-    let candidates = [],candidatesList =[];
+    let candidates = [],
+      candidatesList = [];
     for (var index = 1; index <= candidateCount; index++) {
       const cand = await electionContract.methods.candidates(index).call();
       const { name, voteCount, id } = cand;
@@ -68,84 +56,126 @@ class Election extends Component {
       description,
       name,
       candidates,
-      candidatesList
+      candidatesList,
     });
     this.setState({ ready: true });
   }
   render() {
+    const makeCandidateList = ()=> 
+    {
+      let list = [];
+      for (var i in this.state.candidates) {
+        const { id, name } = this.state.candidates[i];
+        list.push({ id: id, value: id, text: name });
+      }
+      return list;
+    }
+    const vote = async () => {
+      alert(this.state.value);
+      try {
+        if(this.state.value !== -1)
+        {const accounts = await web3.eth.getAccounts();
+        const address = this.state.address;
+        const election = ElectionFetch(address);
+        await election.methods.vote(parseInt(this.state.value)).send({
+          from: accounts[0],
+        });}
+        else
+        {
+          this.setState({ errorFlag: true, error: "Select The Candidate!" });
+        }
+      } catch (error) {
+        this.setState({ errorFlag: true, error: error.message });
+      }
+    };
     return (
       <>
-        {this.state.ready && <>
-        {/* Header */}
-        <Divider />
-        <Container textAlign="center">
-          <h1>Election : {`${this.state.name}`}</h1>
-        </Container>
-        <Divider />
-        <br />
-        {/* Back Button */}
-        <Container textAlign="left" style={{ marginBottom: "25px" }}>
-          <Link to="/">
-            <Button primary floated="left" content="Back" />
-          </Link>
-        </Container>
-        <br />
-        {/* description */}
-        <Container textAlign="left">
-          <h2>Description:</h2>
-        </Container>
-        <br />
-        <Container textAlign="justified" style={{ paddingLeft: "30px" }}>
-          <h3>{this.state.description}</h3>
-        </Container>
-        <br />
-        <Container>
-          <h2>Candidates</h2>
-        </Container>
-        <Container textAlign="center" children={<Candidates candidates={this.state.candidates} />}></Container>
-        <br />
-        {/* <Container textAlign="center" children={<ElectionChart/>}></Container> */}
-        <br />
-        <Container style={{ margin: "auto" }}>
-          <Form onSubmit={this.vote}>
-                 <Form.Field>
-                     <h3>Select Candidate</h3>
-                     
-                     {/* <Dropdown
-                        
-                        button
-                        className='icon'
-                        floating
-                        labeled
-                        fluid
-                        icon='user'
-                        value={this.state.value}
-                        options={this.makeCandidateList()}
-                        text= {this.state.text || 'Select Candidate'}
-                        search
-                        onChange={(event,data) => this.setState({value:data.value,text:data.text})}
-                    /> */}
-                     <Dropdown placeholder='Select Candidate'
-                         fluid
-                         selection
-                         options={this.makeCandidateList()} onChange={(event,data) => this.setState({value:data.value,text:data.text})}/>
-                 </Form.Field>
-                 <Button primary loading={this.state.loading} floated='right' icon="add" content="Vote"/>
-             </Form>
-          <br />
-          {this.state.errorFlag && (
-            <Message
-              style={{ marginTop: "25px" }}
-              error
-              header="Oops!"
-              content={this.state.error}
-            ></Message>
-          )}
-        </Container>
-        <Container textAlign="center" style={{ padding: "50px" }}>
-          <p>Account Address: ___________</p>
-        </Container>
-        </>}
+        {this.state.ready && (
+          <>
+            {/* Header */}
+            <Divider />
+            <Container textAlign="center">
+              <h1>Election : {`${this.state.name}`}</h1>
+            </Container>
+            <Divider />
+            <br />
+            {/* Back Button */}
+            <Container textAlign="left" style={{ marginBottom: "25px" }}>
+              <Link to="/">
+                <Button primary floated="left" content="Back" />
+              </Link>
+            </Container>
+            <br />
+            {/* description */}
+            <Container textAlign="left">
+              <h2>Description:</h2>
+            </Container>
+            <br />
+            <Container textAlign="justified" style={{ paddingLeft: "30px" }}>
+              <h3>{this.state.description}</h3>
+            </Container>
+            <br />
+            <Container textAlign="center">
+              <h2>Candidates</h2>
+            </Container>
+            {/* Candidate List */}
+            <Container
+              textAlign="center"
+              children={
+                <>
+                  <Link to={`/election/${this.state.address}/newCandidate`}>
+                    <Button
+                      content="Add Candidate"
+                      primary
+                      icon="add circle"
+                      floated="right"
+                      />
+                  </Link>
+                  <Candidates 
+                  candidates={this.state.candidates} />
+                </>
+              }
+            ></Container>
+            <br />
+            {/* <Container textAlign="center" children={<ElectionChart/>}></Container> */}
+            <br />
+            <Container style={{ margin: "auto" }}>
+              <Form onSubmit={vote}>
+                <Form.Field required>
+                  <h3>Select Candidate</h3>
+                  <Dropdown
+                    placeholder="Select Candidate"
+                    fluid
+                    selection
+                    options={makeCandidateList()}
+                    onChange={(event, data) =>
+                      this.setState({ value: data.value })
+                    }
+                  />
+                </Form.Field>
+                <Button
+                  primary
+                  loading={this.state.loading}
+                  floated="right"
+                  icon="add"
+                  content="Vote"
+                />
+              </Form>
+              <br />
+              {this.state.errorFlag && (
+                <Message
+                  style={{ marginTop: "25px" }}
+                  error
+                  header="Oops!"
+                  content={this.state.error}
+                ></Message>
+              )}
+            </Container>
+            <Container textAlign="center" style={{ padding: "50px" }}>
+              <p>Account Address: ___________</p>
+            </Container>
+          </>
+        )}
       </>
     );
   }
