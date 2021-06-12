@@ -8,9 +8,9 @@ class Candidates extends Component
     }
     render(){
         return(
-            <Grid>
+            <Grid style={{width:"80vw",margin:"auto auto"}}>
                 {this.state.candidateList.map((cand) =>{
-                    return(<Grid.Column width={3} key={cand.id}>
+                    return(<Grid.Column width={5} key={cand.id}>
                         <Card
                             header={cand.name}
                             image='https://react.semantic-ui.com/images/avatar/large/elliot.jpg'
