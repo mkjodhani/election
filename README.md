@@ -1,7 +1,8 @@
 # Distributed Election System Using Block-chain
 
- ![](https://img.shields.io/github/followers/mkjodhani?style=social)  ![](https://img.shields.io/github/forks/mkjodhani/election?style=social)  ![](https://img.shields.io/github/watchers/mkjodhani/election?style=social)
-
+ ![](https://img.shields.io/github/last-commit/mkjodhani/election)  
+ ![](https://img.shields.io/github/forks/mkjodhani/election?style=social)  
+ 
 Secure Digital Voting System based on Block-chain Technology	
 
 ## Available Scripts
