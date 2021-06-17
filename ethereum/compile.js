@@ -6,6 +6,7 @@ const fs_extra = require('fs-extra')
 var contract_path = path.resolve(__dirname ,"contracts","Election.sol");
 var source = fs.readFileSync(contract_path,'utf-8')
 var output = solc.compile(source,1);
+console.log("Compiling.....");
 for(var i in output.errors)
 {
     console.log(output.errors[i]);

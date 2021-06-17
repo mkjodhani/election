@@ -14,7 +14,7 @@ class ShowResults extends Component {
         datasets: [
           {
             label: "Votes",
-            data:counts,
+            data: counts,
           },
         ],
       },
@@ -33,7 +33,7 @@ class ShowResults extends Component {
     };
     const colors = this.state.chartData.labels.map((ele) => dynamicColors());
     return (
-      <Container textAlign="center" style={{ width: "50%" }}>
+      <Container textAlign="center" style={{ width: "50%", color: "white" }}>
         {this.state.chartData.labels.length <= 5 && (
           <>
             <Bar
@@ -49,6 +49,39 @@ class ShowResults extends Component {
                   position: "right",
                 },
                 backgroundColor: colors,
+                scales: {
+                  xAxes: [
+                    {
+                      display: true,
+                      scaleLabel: {
+                        // To format the scale Lebel
+                        display: true,
+                        labelString: "X axe name",
+                        fontColor: "#000000",
+                        fontSize: 10,
+                      },
+                      ticks: {
+                        fontColor: "black", // To format the ticks, coming on the axis/lables which we are passing.
+                        fontSize: 14,
+                      },
+                    },
+                  ],
+                  yAxes: [
+                    {
+                      display: true,
+                      scaleLabel: {
+                        display: true,
+                        labelString: "Y axe name",
+                        fontColor: "#000000",
+                        fontSize: 10,
+                      },
+                      ticks: {
+                        fontColor: "black",
+                        fontSize: 14,
+                      },
+                    },
+                  ],
+                },
               }}
             />
           </>

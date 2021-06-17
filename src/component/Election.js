@@ -14,6 +14,7 @@ import ElectionFetch from "../assets/eth/Election";
 import Candidates from "../component/Candidates";
 import web3 from "../assets/eth/web3";
 import ShowResults from './ShowResults'
+import Layout from "./Layout";
 class Election extends Component {
   constructor(props) {
     super(props);
@@ -111,7 +112,7 @@ class Election extends Component {
       }
     };
     return (
-      <>
+      <Layout>
         {this.state.ready && (
           <>
             {/* Header */}
@@ -202,7 +203,7 @@ class Election extends Component {
             </Container>
           </>
         )}
-      </>
+      </Layout>
     );
   }
 }
