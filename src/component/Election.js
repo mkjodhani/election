@@ -37,7 +37,7 @@ class Election extends Component {
       candidatesList: [],
       isAdmin: false,
       isResults: false,
-      currentAccount: "",
+      currentAccount: "Not Found",
       total_requests: 0,
       requests: [],
       voterObj
@@ -56,6 +56,7 @@ class Election extends Component {
     const name = await electionContract.methods.name().call();
     const total_requests = await electionContract.methods.requestCount().call();
     const isAdmin = admin === accounts[0];
+    console.log(admin === accounts[0]);
     let candidates = [],candidatesList = [],requests = [];
     for (var index = 1; index <= candidateCount; index++) {
       const cand = await electionContract.methods.candidates(index).call();
@@ -74,9 +75,12 @@ class Election extends Component {
       requests = requests.filter(req => !req.accepted);
     }
     else{
-      const voter = await electionContract.methods.voters(accounts[0]).call();
-      console.log(voter);
-      this.setState({voterObj:voter});
+      if(typeof accounts[0] !== 'undefined')
+      {
+        const voter = await electionContract.methods.voters(accounts[0]).call();
+        console.log(voter);
+        this.setState({voterObj:voter});
+      }
     }
     console.log(accounts[0]); 
     console.log(admin);
@@ -99,7 +103,6 @@ class Election extends Component {
     });
   }
   render() {
-    window.ethereum.on("update", async () => {});
     const makeCandidateList = () => {
       let list = [];
       for (var i in this.state.candidates) {
@@ -260,7 +263,7 @@ class Election extends Component {
               </>
             }
             <Container textAlign="center" style={{ padding: "50px" }}>
-              <p>Account Address:  <b>{this.state.currentAccount}</b> </p>
+              <p>Account Address:  <b>{this.state.currentAccount || "Not Found!"}</b> </p>
             </Container>
           </>
         )}
