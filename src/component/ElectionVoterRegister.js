@@ -14,7 +14,7 @@ import Layout from "./Layout";
 import ElectionFetch from "../assets/eth/Election";
 import web3 from "../assets/eth/web3";
 
-class NewCandidate extends Component {
+class ElectionVoterRegister extends Component {
   constructor(props) {
     super(props);
     this.state = {
@@ -27,7 +27,7 @@ class NewCandidate extends Component {
     };
   }
   render() {
-    const addCandidate = async () => {
+    const registerVoter = async () => {
       try {
         this.setState({ loading: true, errorFlag: false });
         if (this.state.value === "" || this.state.gender === -1) {
@@ -36,16 +36,15 @@ class NewCandidate extends Component {
             errorFlag: true,
             error: ` ${
               this.state.value === ""
-                ? "Enter The Candidate Name"
+                ? "Enter The Voter Name"
                 : " You haven't sepcify Gender"
             }`,
           });
         } else {
-          const accounts = await web3.eth.getAccounts();
           const address = this.state.address;
           const election = ElectionFetch(address);
-          await election.methods.addCandidate(this.state.value).send({
-            from: accounts[0],
+          await election.methods.registerVoter(this.state.value).send({
+            from:window.ethereum.selectedAddress
           });
         }
         this.setState({ loading: false });
@@ -59,15 +58,15 @@ class NewCandidate extends Component {
     };
     return (
       <>
-        <Layout>
-          <Container style={{ width: "50vw" }}>
+        <Layout >
+          <Container style={{ width: "50vw",paddingTop:"5%" }}>
             <Header textAlign="center" size="huge" style={{marginBottom:'50px'}}>
-              <Button secondary icon="user" content="New Candidate" />
+              <Button secondary icon="user" content="New Voter" />
             </Header>
-            <Form onSubmit={addCandidate}>
+            <Form onSubmit={registerVoter}>
               <Form.Field required>
                 <Input
-                  label="Candidate Name:"
+                  label="Voter Name:"
                   value={this.state.value}
                   onChange={(event) => {
                     this.setState({ value: event.target.value });
@@ -108,9 +107,9 @@ class NewCandidate extends Component {
                 />
               </Form.Field>
               <Button
-                content="Add"
+                content="Register"
                 loading={this.state.loading}
-                primary
+                color='green'
                 floated="right"
                 icon="add circle"
               />
@@ -126,4 +125,5 @@ class NewCandidate extends Component {
     );
   }
 }
-export default withRouter(NewCandidate);
+
+export default withRouter(ElectionVoterRegister);

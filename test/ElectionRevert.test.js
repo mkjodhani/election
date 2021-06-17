@@ -32,6 +32,24 @@ beforeEach(async () => {
 });
 
 describe("Election Revert Testing", () => {
+  it("Transaction Revert: Create Request for Voter twise for Same User", async () => {
+    const _voterName = "bhalani";
+    assert.strictEqual(accounts[1],admin);
+    await election.methods.registerVoter(_voterName).send({
+        from: accounts[2],
+        gas: "3000000", //simple voter address
+    });
+    try {
+      await election.methods.registerVoter(_voterName).send({
+        from: accounts[2],
+        gas: "3000000", //simple voter address
+    });
+    assert(false)
+    } catch (error) {
+      assert(true)
+    }
+
+});
   it("Transaction Revert: restricting Voter votes Candidate without register.", async () => {
     const _candidateName = "bhalani";
     await election.methods.addCandidate(_candidateName).send({

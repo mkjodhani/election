@@ -6,7 +6,7 @@ class ShowResults extends Component {
     super(props);
     const label = props.candidates.map((cand) => cand.name);
     const counts = props.candidates.map(
-      (cand, index) => parseInt(cand.voteCount) + index * 2 + 2
+      (cand, index) => parseInt(cand.voteCount)
     );
     this.state = {
       chartData: {
@@ -33,7 +33,7 @@ class ShowResults extends Component {
     };
     const colors = this.state.chartData.labels.map((ele) => dynamicColors());
     return (
-      <Container textAlign="center" style={{ width: "50%", color: "white" }}>
+      <Container textAlign="center" style={{ width: "75%", color: "white" }}>
         {this.state.chartData.labels.length <= 5 && (
           <>
             <Bar
@@ -41,7 +41,7 @@ class ShowResults extends Component {
               options={{
                 title: {
                   display: true,
-                  text: "Votes",
+                  text: "Votes of Election",
                   fontSize: 50,
                 },
                 legend: {
@@ -50,37 +50,13 @@ class ShowResults extends Component {
                 },
                 backgroundColor: colors,
                 scales: {
-                  xAxes: [
-                    {
-                      display: true,
-                      scaleLabel: {
-                        // To format the scale Lebel
-                        display: true,
-                        labelString: "X axe name",
-                        fontColor: "#000000",
-                        fontSize: 10,
-                      },
-                      ticks: {
-                        fontColor: "black", // To format the ticks, coming on the axis/lables which we are passing.
-                        fontSize: 14,
-                      },
+                  y: {
+                    max: Math.max(...this.state.chartData.datasets[0].data) + 5,
+                    min: 0,
+                    ticks: {
+                      stepSize: 1,
                     },
-                  ],
-                  yAxes: [
-                    {
-                      display: true,
-                      scaleLabel: {
-                        display: true,
-                        labelString: "Y axe name",
-                        fontColor: "#000000",
-                        fontSize: 10,
-                      },
-                      ticks: {
-                        fontColor: "black",
-                        fontSize: 14,
-                      },
-                    },
-                  ],
+                  },
                 },
               }}
             />

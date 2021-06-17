@@ -31,6 +31,7 @@ class ElectionCard extends Component {
               backgroundColor: "#f9ea8f",
               backgroundImage:
                 "linear-gradient(315deg, #f9ea8f 0%, #aff1da 74%)",
+                textAlign:"left"
             }}
             key={this.props.id}
           >

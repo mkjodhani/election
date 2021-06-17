@@ -6,6 +6,7 @@ import Election from './component/Election';
 import {BrowserRouter as Router ,Route ,Switch } from 'react-router-dom'
 import NewElection from './component/NewElection';
 import NewCandidate from './component/NewCandidate';
+import ElectionVoterRegister from './component/ElectionVoterRegister'
 ReactDOM.render(
     <Router>
       <Switch>
@@ -20,6 +21,9 @@ ReactDOM.render(
         </Route>
         <Route exact path="/election/:address/newCandidate">
           <NewCandidate/>
+        </Route>
+        <Route exact path="/election/:address/register">
+          <ElectionVoterRegister/>
         </Route>
       </Switch>
     </Router>,

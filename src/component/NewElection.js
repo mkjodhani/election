@@ -2,18 +2,21 @@ import {Component} from "react";
 import Layout from "../component/Layout";
 import { Form ,Input,Button,Message,Container} from 'semantic-ui-react';
 import { Link } from 'react-router-dom'
+import ElectionFactory from "../assets/eth/ElectionFactory";
 
 class NewElection extends Component
 {
-    state = {loading:false,isError:false,error:"Default Error!"}
-    createElection = ()=>
+    state = {loading:false,isError:false,error:"Default Error!",nameValue:"",descValue:""}
+    createElection = async ()=>
     {
         try {
             this.setState({loading:true,isError:false})
-            alert("created!");
+            console.log(ElectionFactory);
+            await ElectionFactory.methods.addElection(this.state.nameValue,this.state.descValue)
+            .send({from:window.ethereum.selectedAddress});
             this.setState({loading:false})
         } catch (error) {
-            this.state({isError:true,error:error.message})            
+            this.setState({loading:false,isError:true,error:error.message})            
         }
     }
     render()
@@ -27,13 +30,13 @@ class NewElection extends Component
                 </Link>
                 <Container style={{width:'50vw'}} >
                     <Form onSubmit={this.createElection}>
-                        <Form.Field required>
-                            <Input label= "Name"></Input>
+                        <Form.Field>
+                            <Input label= "Name" value={this.state.nameValue} onChange={(event) => this.setState({nameValue:event.target.value})} ></Input>
                         </Form.Field>
-                        <Form.Field required>
-                            <Input label="Description"></Input>
+                        <Form.Field>
+                            <Input label="Description" value={this.state.descValue} onChange={(event) => this.setState({descValue:event.target.value})}></Input>
                         </Form.Field>
-                        <Button primary loading={this.state.loading} icon="add circle" content="Create" floated='right'/>
+                        <Button primary loading={this.state.loading}   icon="add circle" content="Create" floated='right'/>
                     </Form>
                     <br/>
                     {this.state.isError && <Message style={{marginTop:'25px'}} error header="Oops!" content={this.state.error}></Message>}

@@ -38,21 +38,23 @@ class App extends Component {
   render() {
     return (
       <Layout>
-        <h1>DashBoard</h1>
-        <hr />
         {/* {<h1>{  JSON.stringify(this.state)}</h1>} */}
         {!this.state.ready && <Loading/>}
-        {this.state.ready && (
-          <Elections key={0} elections={this.state.elections}></Elections>
-        )}
-        <Container textAlign="center" style={{ margin: "20px" }}>
-          <Link to="/election/new">
-            <Button
+        <Container textAlign="center">
+        <h1 style={{float:'left'}} >DashBoard</h1>
+          <Link  to="/election/new">
+            <Button floated='right'
+              style={{marginBottom:'200px'}}
               primary
               content="Create Election"
               icon="add circle"
             ></Button>
           </Link>
+        <br/><br/>
+        <hr />
+        {this.state.ready && (
+          <Elections key={0}  elections={this.state.elections}></Elections>
+          )}
         </Container>
       </Layout>
     );
