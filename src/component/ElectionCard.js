@@ -26,15 +26,7 @@ class ElectionCard extends Component {
     if (this.state.election && this.state.isready) {
       return (
         <Link to={`election/${this.state.address}`}>
-          <Card
-            style={{
-              backgroundColor: "#f9ea8f",
-              backgroundImage:
-                "linear-gradient(315deg, #f9ea8f 0%, #aff1da 74%)",
-                textAlign:"left"
-            }}
-            key={this.props.id}
-          >
+          <Card style={{textAlign:"left"}} key={this.props.id} >
             <Card.Content header={`${this.props.id} : ${name}`} />
             <Card.Content description={`${description}`} />
             <Card.Content extra>

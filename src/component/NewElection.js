@@ -7,8 +7,7 @@ import ElectionFactory from "../assets/eth/ElectionFactory";
 class NewElection extends Component
 {
     state = {loading:false,isError:false,error:"Default Error!",nameValue:"",descValue:""}
-    createElection = async ()=>
-    {
+    async createElection(){
         try {
             this.setState({loading:true,isError:false})
             console.log(ElectionFactory);

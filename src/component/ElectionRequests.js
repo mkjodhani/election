@@ -20,41 +20,41 @@ class ElectionRequests extends Component {
     };
   }
 
+  async requestAccept(id) {
+    try {
+      this.setState({ loading: true, errorFlag: false });
+      const accounts = await web3.eth.getAccounts();
+      const address = this.state.address;
+      const election = await ElectionFetch(address);
+      await election.methods.authenticateVoter(id).send({
+        from: accounts[0],
+      });
+      this.setState({ loading: false });
+    } catch (error) {
+      this.setState({
+        loading: false,
+        errorFlag: true,
+        error: error.message,
+      });
+    }
+  };
+  async deleteRequest(id) {
+    try {
+      this.setState({ loading: true, errorFlag: false });
+      const newRequests = this.state.requests.filter(
+        (req) => req.voterId !== id
+      );
+      this.setState({ requests: newRequests });
+      this.setState({ loading: false });
+    } catch (error) {
+      this.setState({
+        loading: false,
+        errorFlag: true,
+        error: error.message,
+      });
+    }
+  };
   render() {
-    const requestAccept = async (id) => {
-      try {
-        this.setState({ loading: true, errorFlag: false });
-        const accounts = await web3.eth.getAccounts();
-        const address = this.state.address;
-        const election = await ElectionFetch(address);
-        await election.methods.authenticateVoter(id).send({
-          from: accounts[0],
-        });
-        this.setState({ loading: false });
-      } catch (error) {
-        this.setState({
-          loading: false,
-          errorFlag: true,
-          error: error.message,
-        });
-      }
-    };
-    const deleteRequest = async (id) => {
-      try {
-        this.setState({ loading: true, errorFlag: false });
-        const newRequests = this.state.requests.filter(
-          (req) => req.voterId != id
-        );
-        this.setState({ requests: newRequests });
-        this.setState({ loading: false });
-      } catch (error) {
-        this.setState({
-          loading: false,
-          errorFlag: true,
-          error: error.message,
-        });
-      }
-    };
     return (
       <>
         <h1 style={{ textAlign: "left" }}>Requests</h1>
@@ -82,14 +82,14 @@ class ElectionRequests extends Component {
                       <Button
                         basic
                         color="green"
-                        onClick={() => requestAccept(request.voterId)}
+                        onClick={() => this.requestAccept(request.voterId)}
                       >
                         Approve
                       </Button>
                       <Button
                         basic
                         color="red"
-                        onClick={() => deleteRequest(request.voterId)}
+                        onClick={() => this.deleteRequest(request.voterId)}
                       >
                         Decline
                       </Button>

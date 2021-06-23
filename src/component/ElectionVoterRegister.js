@@ -1,5 +1,5 @@
 import { Component } from "react";
-import { withRouter} from "react-router-dom";
+import { withRouter } from "react-router-dom";
 import {
   Form,
   Input,
@@ -12,7 +12,6 @@ import {
 } from "semantic-ui-react";
 import Layout from "./Layout";
 import ElectionFetch from "../assets/eth/Election";
-import web3 from "../assets/eth/web3";
 
 class ElectionVoterRegister extends Component {
   constructor(props) {
@@ -26,44 +25,48 @@ class ElectionVoterRegister extends Component {
       gender: -1,
     };
   }
-  render() {
-    const registerVoter = async () => {
-      try {
-        this.setState({ loading: true, errorFlag: false });
-        if (this.state.value === "" || this.state.gender === -1) {
-          this.setState({
-            loading: false,
-            errorFlag: true,
-            error: ` ${
-              this.state.value === ""
-                ? "Enter The Voter Name"
-                : " You haven't sepcify Gender"
-            }`,
-          });
-        } else {
-          const address = this.state.address;
-          const election = ElectionFetch(address);
-          await election.methods.registerVoter(this.state.value).send({
-            from:window.ethereum.selectedAddress
-          });
-        }
-        this.setState({ loading: false });
-      } catch (error) {
+  async registerVoter() {
+    try {
+      this.setState({ loading: true, errorFlag: false });
+      if (this.state.value === "" || this.state.gender === -1) {
         this.setState({
           loading: false,
           errorFlag: true,
-          error: error.message,
+          error: ` ${
+            this.state.value === ""
+              ? "Enter The Voter Name"
+              : " You haven't sepcify Gender"
+          }`,
+        });
+      } else {
+        const address = this.state.address;
+        const election = ElectionFetch(address);
+        await election.methods.registerVoter(this.state.value).send({
+          from: window.ethereum.selectedAddress,
         });
       }
-    };
+      this.setState({ loading: false });
+    } catch (error) {
+      this.setState({
+        loading: false,
+        errorFlag: true,
+        error: error.message,
+      });
+    }
+  }
+  render() {
     return (
       <>
-        <Layout >
-          <Container style={{ width: "50vw",paddingTop:"5%" }}>
-            <Header textAlign="center" size="huge" style={{marginBottom:'50px'}}>
+        <Layout>
+          <Container style={{ width: "50vw", paddingTop: "5%" }}>
+            <Header
+              textAlign="center"
+              size="huge"
+              style={{ marginBottom: "50px" }}
+            >
               <Button secondary icon="user" content="New Voter" />
             </Header>
-            <Form onSubmit={registerVoter}>
+            <Form onSubmit={this.registerVoter}>
               <Form.Field required>
                 <Input
                   label="Voter Name:"
@@ -74,7 +77,10 @@ class ElectionVoterRegister extends Component {
                 />
               </Form.Field>
               <Form.Field>
-                <Label style={{ marginRight: "45px" ,fontSize:'14.5px'}} content="Gender" />
+                <Label
+                  style={{ marginRight: "45px", fontSize: "14.5px" }}
+                  content="Gender"
+                />
                 <Radio
                   style={{ margin: "10px" }}
                   label="Male"
@@ -109,7 +115,7 @@ class ElectionVoterRegister extends Component {
               <Button
                 content="Register"
                 loading={this.state.loading}
-                color='green'
+                color="green"
                 floated="right"
                 icon="add circle"
               />

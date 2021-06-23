@@ -26,37 +26,37 @@ class NewCandidate extends Component {
       gender: -1,
     };
   }
-  render() {
-    const addCandidate = async () => {
-      try {
-        this.setState({ loading: true, errorFlag: false });
-        if (this.state.value === "" || this.state.gender === -1) {
-          this.setState({
-            loading: false,
-            errorFlag: true,
-            error: ` ${
-              this.state.value === ""
-                ? "Enter The Candidate Name"
-                : " You haven't sepcify Gender"
-            }`,
-          });
-        } else {
-          const accounts = await web3.eth.getAccounts();
-          const address = this.state.address;
-          const election = ElectionFetch(address);
-          await election.methods.addCandidate(this.state.value).send({
-            from: accounts[0],
-          });
-        }
-        this.setState({ loading: false });
-      } catch (error) {
+  async addCandidate(){
+    try {
+      this.setState({ loading: true, errorFlag: false });
+      if (this.state.value === "" || this.state.gender === -1) {
         this.setState({
           loading: false,
           errorFlag: true,
-          error: error.message,
+          error: ` ${
+            this.state.value === ""
+              ? "Enter The Candidate Name"
+              : " You haven't sepcify Gender"
+          }`,
+        });
+      } else {
+        const accounts = await web3.eth.getAccounts();
+        const address = this.state.address;
+        const election = ElectionFetch(address);
+        await election.methods.addCandidate(this.state.value).send({
+          from: accounts[0],
         });
       }
-    };
+      this.setState({ loading: false });
+    } catch (error) {
+      this.setState({
+        loading: false,
+        errorFlag: true,
+        error: error.message,
+      });
+    }
+  };
+  render() {
     return (
       <>
         <Layout>
@@ -64,7 +64,7 @@ class NewCandidate extends Component {
             <Header textAlign="center" size="huge" style={{marginBottom:'50px'}}>
               <Button secondary icon="user" content="New Candidate" />
             </Header>
-            <Form onSubmit={addCandidate}>
+            <Form onSubmit={this.addCandidate}>
               <Form.Field required>
                 <Input
                   label="Candidate Name:"

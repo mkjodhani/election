@@ -10,7 +10,6 @@ import {
 import { withRouter } from "react-router-dom";
 import { Link } from "react-router-dom";
 import ElectionFetch from "../assets/eth/Election";
-// import ElectionChart from '../component/ElectionChart'
 import Candidates from "../component/Candidates";
 import web3 from "../assets/eth/web3";
 import ShowResults from "./ShowResults";
@@ -21,7 +20,13 @@ import Loading from "./Loading";
 class Election extends Component {
   constructor(props) {
     super(props);
-    const voterObj = {voterId: "0", name: "", voterAddress: "0x0", authenticated: false, voted: false}
+    const voterObj = {
+      voterId: "0",
+      name: "",
+      voterAddress: "0x0",
+      authenticated: false,
+      voted: false,
+    };
     this.state = {
       loading: false,
       errorFlag: false,
@@ -40,7 +45,9 @@ class Election extends Component {
       currentAccount: "Not Found",
       total_requests: 0,
       requests: [],
-      voterObj
+      voterObj,
+      electionContract: undefined,
+      active:false
     };
   }
 
@@ -52,39 +59,38 @@ class Election extends Component {
     const candidateCount = await electionContract.methods
       .candidateCount()
       .call();
+    const active = await electionContract.methods.active().call();
     const description = await electionContract.methods.description().call();
     const name = await electionContract.methods.name().call();
     const total_requests = await electionContract.methods.requestCount().call();
     const isAdmin = admin === accounts[0];
-    console.log(admin === accounts[0]);
-    let candidates = [],candidatesList = [],requests = [];
+    let candidates = [],
+      candidatesList = [],
+      requests = [];
     for (var index = 1; index <= candidateCount; index++) {
       const cand = await electionContract.methods.candidates(index).call();
       const { name, voteCount, id } = cand;
       candidates.push({ name, voteCount, id });
     }
-    if(isAdmin)
-    {
-      for (var index = 1; index <= total_requests; index++) {
+    if (isAdmin) {
+      for (index = 1; index <= total_requests; index++) {
         const request = await electionContract.methods.getRequests(index).call({
-          from:accounts[0]
+          from: accounts[0],
         });
-        console.log({ "address":request["0"],"accepted":request["1"],"name":request["2"] });
-        requests.push({ "voterId":index,"address":request["0"],"accepted":request["1"],"name":request["2"] });
+        requests.push({
+          voterId: index,
+          address: request["0"],
+          accepted: request["1"],
+          name: request["2"],
+        });
       }
-      requests = requests.filter(req => !req.accepted);
-    }
-    else{
-      if(typeof accounts[0] !== 'undefined')
-      {
+      requests = requests.filter((req) => !req.accepted);
+    } else {
+      if (typeof accounts[0] !== "undefined") {
         const voter = await electionContract.methods.voters(accounts[0]).call();
-        console.log(voter);
-        this.setState({voterObj:voter});
+        this.setState({ voterObj: voter });
       }
     }
-    console.log(accounts[0]); 
-    console.log(admin);
-    console.log (admin == accounts[0]);
     this.setState({
       address,
       admin,
@@ -95,175 +101,209 @@ class Election extends Component {
       candidates,
       candidatesList,
       total_requests,
-      requests
+      requests,
+      electionContract,
+      active
     });
     this.setState({
-      ready:true,
-      currentAccount:accounts[0],
+      ready: true,
+      currentAccount: accounts[0],
     });
   }
-  render() {
-    const makeCandidateList = () => {
-      let list = [];
-      for (var i in this.state.candidates) {
-        const { id, name } = this.state.candidates[i];
-        list.push({ id: id, value: id, text: name });
-      }
-      return list;
-    };
-    const vote = async () => {
-      try {
-        if (this.state.value !== -1) {
-          const accounts = await web3.eth.getAccounts();
-          const address = this.state.address;
-          const election = ElectionFetch(address);
-          await election.methods.vote(parseInt(this.state.value)).send({
-            from: accounts[0],
-          });
-        } else {
-          this.setState({ errorFlag: true, error: "Select The Candidate!" });
-        }
-      } catch (error) {
-        this.setState({ errorFlag: true, error: error.message });
-      }
-    };
-    const seeResults = async (event) => {
-      if (event.target.textContent === "Results") {
+  makeCandidateList(){
+    let list = [];
+    for (var i in this.state.candidates) {
+      const { id, name } = this.state.candidates[i];
+      list.push({ id: id, value: id, text: name });
+    }
+    return list;
+  };
+  async vote(){
+    try {
+      this.setState({ errorFlag: false});
+      if (this.state.value !== -1) {
         const accounts = await web3.eth.getAccounts();
-        if (accounts[0] === this.state.admin) {
-          event.target.textContent = "Hide Results";
-          event.target.style.backgroundColor = "red";
-          this.setState({ isResults: true });
-        } else alert("You are not authoeized to see results");
+        const election = this.state.electionContract;
+        await election.methods.vote(parseInt(this.state.value)).send({
+          from: accounts[0],
+        });
       } else {
-        this.setState({ isResults: false });
-        event.target.textContent = "Results";
-        event.target.style.backgroundColor = "#21ba45";
+        this.setState({ errorFlag: true, error: "Select The Candidate!" });
       }
-    };
+    } catch (error) {
+      this.setState({ errorFlag: true, error: error.message });
+    }
+  };
+  async seeResults(event){
+    this.setState({ errorFlag: false});
+    if (event.target.textContent === "Results") {
+      const accounts = await web3.eth.getAccounts();
+      if (accounts[0] === this.state.admin) {
+        event.target.textContent = "Hide Results";
+        event.target.style.backgroundColor = "red";
+        this.setState({ isResults: true });
+      } else alert("You are not authoeized to see results");
+    } else {
+      this.setState({ isResults: false });
+      event.target.textContent = "Results";
+      event.target.style.backgroundColor = "#21ba45";
+    }
+  };
+  async closeElection(event) {
+    try {
+      this.setState({ errorFlag: false});
+      event.target.textContent = "Closing Election";
+      const accounts = await web3.eth.getAccounts();
+      const election = this.state.electionContract;
+      await election.methods.closeElection().send({
+        from: accounts[0],
+      });
+      event.target.textContent = "Election Closed";
+    } catch(error)
+    {
+      this.setState({ errorFlag: true, error:error.message});
+    }
+  }
+  render() {
     return (
       <Layout>
         {!this.state.ready && <Loading />}
         {this.state.ready && (
           <>
-            <Container textAlign="left">
-            {this.state.isAdmin && <>
-              <Button
-                color="green"
-                floated="right"
-                onClick={(event) =>seeResults(event)}
-                content="Results"
-              ></Button>
-            </>}
-            {!this.state.isAdmin && this.state.voterObj.voterId == "0" &&<>
-              <Container>
-                <Link to={`/election/${this.state.address}/register`}>
+            <Container >
+              {this.state.isAdmin && (
+                <>
                   <Button
-                      color="green"
-                      floated="right"
-                      icon="add"
-                      content="Register"
-                    />
-                </Link>
-              </Container>
-            </>
-            }
-            {!this.state.isAdmin && this.state.voterObj.voterId != "0" &&<>
-              <Container>
+                    color={this.state.active? "grey":'red'}
+                    floated="right"
+                    onClick={(event) => {
+                      this.closeElection(event);
+                    }}
+                    content={this.state.active? "Close Election":"Election Closed"}
+                  ></Button>
                   <Button
+                    color="green"
+                    floated="right"
+                    onClick={(event) => this.seeResults(event)}
+                    content="Results"
+                  ></Button>
+                </>
+              )}
+              {!this.state.isAdmin && this.state.voterObj.voterId === "0" && (
+                <>
+                  <Container>
+                    <Link to={`/election/${this.state.address}/register`}>
+                      <Button
+                        color="green"
+                        floated="right"
+                        icon="add"
+                        content="Register"
+                      />
+                    </Link>
+                  </Container>
+                </>
+              )}
+              {!this.state.isAdmin && this.state.voterObj.voterId !== "0" && (
+                <>
+                    <Button
                       color="green"
                       floated="right"
                       icon="user"
                       content={` ${this.state.voterObj.name}`}
                     />
-              </Container>
-            </>
-            }
-            <Container textAlign="left">
-              <Link to="/">
-                <Button primary  style={{ marginRight: "50px" }} floated="left" content="Back" />
-              </Link>
-            </Container>
-              <h1 style={{textAlign:'center'}}>Election Name: {`${this.state.name}`}</h1>
-            </Container>
-            <Divider />
-            {/* description */}
-            <Container textAlign="left">
-              <h1 style={{textAlign:'left'}}>Description:</h1>
-            </Container>
-            <br />
-            <Container textAlign="justified" style={{ paddingLeft: "30px" }}>
-              <h3>{this.state.description}</h3>
-            </Container>
-            <Container textAlign="left">
-              <h1 style={{textAlign:'left'}}>Manager Address:</h1>
-            </Container>
-            <br />
-            <Container textAlign="justified" style={{ paddingLeft: "30px" }}>
-              <h3>{this.state.admin}</h3>
-            </Container>
-            {this.state.isResults && <ShowResults candidates={this.state.candidates} />}
-            <br />
-            {/* Candidate List */}
-            <Container textAlign="center">
-              <h1 style={{textAlign:'left'}}>Candidates</h1>
-            </Container>
-            <Container textAlign="center">
-            {this.state.isAdmin && <>
-              <Link to={`/election/${this.state.address}/newCandidate`}>
-                <Button
-                  content="Add Candidate"
-                  primary
-                  icon="add circle"
-                  floated="right"
-                />
-              </Link></>}
-              <Candidates candidates={this.state.candidates} />
-            </Container>
-            
-            {!this.state.isAdmin && this.state.voterObj.authenticated && !this.state.voterObj.voted  &&<>
-            <br />
-            <Container style={{ margin: "auto" }}>
-              <Form onSubmit={vote}>
-                <Form.Field required>
-                  <h3>Select Candidate</h3>
-                  <Dropdown
-                    placeholder="Select Candidate"
-                    fluid
-                    selection
-                    options={makeCandidateList()}
-                    onChange={(event, data) =>
-                      this.setState({ value: data.value })
-                    }
-                  />
-                </Form.Field>
-                <Button
-                  primary
-                  loading={this.state.loading}
-                  floated="right"
-                  icon="add"
-                  content="Vote"
-                />
-              </Form>
-              <br />
-              {this.state.errorFlag && (
-                <Message
-                  style={{ marginTop: "25px" }}
-                  error
-                  header="Oops!"
-                  content={this.state.error}
-                ></Message>
+                </>
               )}
-            </Container>
-            </>}
-            {this.state.isAdmin && this.state.requests.length != 0&& <>
-              <Container textAlign="center" style={{ paddingTop: "20px" }}>
-                  <ElectionRequests requests={this.state.requests} address={this.state.address}></ElectionRequests>
+              <Container textAlign="left">
+                <Link to="/">
+                  <Button
+                    primary
+                    style={{ marginRight: "50px" }}
+                    floated="left"
+                    content="Back"
+                  />
+                </Link>
+                <h1 style={{ textAlign: "center" }}>
+                  Election : {`${this.state.name}`}
+                </h1>
               </Container>
+            <Divider />
+            {this.state.errorFlag && (
+              <Message
+                style={{ marginTop: "25px" }}
+                error
+                header="Oops!"
+                content={this.state.error}
+              ></Message>
+            )}
+            {/* description */}
+            <p>
+              <span style={{ textAlign: "left",fontSize:"x-large",fontWeight:"bolder" }}>Description: </span >
+              <span style={{fontWeight:"bolder",fontSize:"large"}}>&nbsp; {this.state.description}</span>
+            </p>
+            <p>
+              <span style={{ textAlign: "left",fontSize:"x-large",fontWeight:"bolder" }}>Manager Address: </span >
+              <span style={{fontWeight:"bolder",fontSize:"large"}}>&nbsp; {this.state.admin}</span>
+            </p>
+            {(this.state.isResults || !this.state.active) && (
+              <ShowResults candidates={this.state.candidates} />
+              )}
+            {/* Candidate List */}
+            <h1 style={{ textAlign: "left" }}>Candidates</h1>
+            {this.state.isAdmin && (
+              <>
+                <Link to={`/election/${this.state.address}/newCandidate`}>
+                  <Button
+                    content="Add Candidate"
+                    primary
+                    icon="add circle"
+                    floated="right"
+                  />
+                </Link>
               </>
-            }
-            <Container textAlign="center" style={{ padding: "50px" }}>
-              <p>Account Address:  <b>{this.state.currentAccount || "Not Found!"}</b> </p>
+            )}
+            <Candidates candidates={this.state.candidates} />
+
+            {!this.state.isAdmin &&
+              this.state.voterObj.authenticated &&
+              !this.state.voterObj.voted &&
+              this.state.active && (
+                <>
+                  <br />
+                    <Form onSubmit={this.vote}>
+                      <Form.Field required>
+                        <h3>Select Candidate</h3>
+                        <Dropdown
+                          placeholder="Select Candidate"
+                          fluid
+                          selection
+                          options={this.makeCandidateList()}
+                          onChange={(event, data) =>
+                            this.setState({ value: data.value })
+                          }
+                          />
+                      </Form.Field>
+                      <Button
+                        primary
+                        loading={this.state.loading}
+                        floated="right"
+                        icon="add"
+                        content="Vote"
+                        />
+                    </Form>
+                    <br />
+                </>
+              )}
+            {this.state.isAdmin && this.state.requests.length !== 0 && (
+              <>
+                <Container textAlign="center" style={{ paddingTop: "20px" }}>
+                  <ElectionRequests
+                    requests={this.state.requests}
+                    address={this.state.address}
+                    ></ElectionRequests>
+                </Container>
+              </>
+            )}
+            <p style={{  textAlign:"center",paddingTop:'20px'}}>Account Address : &nbsp;<b>{this.state.currentAccount || "Not Found!"}</b></p>
             </Container>
           </>
         )}

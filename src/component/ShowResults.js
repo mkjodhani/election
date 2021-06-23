@@ -1,6 +1,6 @@
 import React, { Component } from "react";
-import { Container, Grid } from "semantic-ui-react";
-import { Bar, Pie, Line } from "react-chartjs-2";
+import { Container } from "semantic-ui-react";
+import { Bar, Pie } from "react-chartjs-2";
 class ShowResults extends Component {
   constructor(props) {
     super(props);
