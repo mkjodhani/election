@@ -6,6 +6,8 @@ import {
   Form,
   Message,
   Dropdown,
+  Grid,
+  Card,Image,Icon
 } from "semantic-ui-react";
 import { withRouter } from "react-router-dom";
 import { Link } from "react-router-dom";
@@ -16,7 +18,7 @@ import ShowResults from "./ShowResults";
 import Layout from "./Layout";
 import ElectionRequests from "./ElectionRequests";
 import Loading from "./Loading";
-
+import QRCode from 'qrcode.react'
 class Election extends Component {
   constructor(props) {
     super(props);
@@ -88,6 +90,7 @@ class Election extends Component {
     } else {
       if (typeof accounts[0] !== "undefined") {
         const voter = await electionContract.methods.voters(accounts[0]).call();
+        console.log(voter);
         this.setState({ voterObj: voter });
       }
     }
@@ -118,9 +121,9 @@ class Election extends Component {
     }
     return list;
   };
-  async vote(){
+  vote = async () =>{
     try {
-      this.setState({ errorFlag: false});
+      this.setState({ errorFlag: false });
       if (this.state.value !== -1) {
         const accounts = await web3.eth.getAccounts();
         const election = this.state.electionContract;
@@ -134,7 +137,7 @@ class Election extends Component {
       this.setState({ errorFlag: true, error: error.message });
     }
   };
-  async seeResults(event){
+  seeResults = async  (event) =>{
     this.setState({ errorFlag: false});
     if (event.target.textContent === "Results") {
       const accounts = await web3.eth.getAccounts();
@@ -149,7 +152,7 @@ class Election extends Component {
       event.target.style.backgroundColor = "#21ba45";
     }
   };
-  async closeElection(event) {
+  closeElection = async (event) => {
     try {
       this.setState({ errorFlag: false});
       event.target.textContent = "Closing Election";
@@ -161,8 +164,29 @@ class Election extends Component {
       event.target.textContent = "Election Closed";
     } catch(error)
     {
-      this.setState({ errorFlag: true, error:error.message});
+      this.setState( { errorFlag: true, error:error.message});
     }
+  }
+  fetchVoter(){
+    const {voterId,name,voterAddress,authenticated,voted} = this.state.voterObj; 
+    return {voterId,name,voterAddress,authenticated,voted};
+  }
+  fetchElectionInfo(){
+    const {address,admin,description,name,active} = this.state;
+    return {"Election Address":address,"Election Manager":admin,"Election Descripription":description,"Election Name":name,"Eelction Active":active};
+  }
+  makeQrCode =()=>{
+    const person = this.state.isAdmin?{"admin":true,"address":this.state.admin}:this.fetchVoter();
+    const election = this.fetchElectionInfo()
+    const text = JSON.stringify({"User":person,"Election":election},null,4)
+    return text;
+  }
+  downloadQR = () =>{
+    const canvas = document.getElementById('qrCanvas');
+    const link = document.createElement('a');
+    link.href = canvas.toDataURL();
+    link.download  = "QrCode.png"
+    link.click()
   }
   render() {
     return (
@@ -262,7 +286,44 @@ class Election extends Component {
               </>
             )}
             <Candidates candidates={this.state.candidates} />
-
+            {(this.state.isAdmin || this.state.voterObj.voterId !== "0") && ( 
+            <Container >
+              <h1>Profile:</h1>
+              <Grid>
+                <Grid.Column width={6} style={{'padding':"20px"}}>
+                <Card
+                  style={{wordWrap:'break-word'}}>
+                  <Image src='https://react.semantic-ui.com/images/avatar/large/daniel.jpg' wrapped ui={false} />
+                  <Card.Content>
+                    <Card.Header>{this.state.voterObj.name}</Card.Header>
+                    <Card.Meta>{this.state.isAdmin ? "Admin":"Voter"}</Card.Meta>
+                    <Card.Description>
+                      {`Election :- ${this.state.description}`}
+                    </Card.Description>
+                  </Card.Content>
+                  <Card.Content extra>
+                    <a>
+                      <Icon name='user' />
+                      {this.state.isAdmin?"Admin can't vote.":(this.state.voterObj.voted?"Already Voted":"Haven't Voted yet.")}
+                    </a>
+                  </Card.Content>
+                </Card>
+                </Grid.Column>
+                <Grid.Column width={8}>
+                  <Container>
+                    <QRCode
+                      id="qrCanvas"
+                      value={`${this.makeQrCode()}`}
+                      size="350"
+                      level={"H"}
+                      includeMargin={true}
+                      onClick={this.downloadQR}
+                    />
+                  </Container>
+                </Grid.Column>
+              </Grid>
+            </Container>
+            )}
             {!this.state.isAdmin &&
               this.state.voterObj.authenticated &&
               !this.state.voterObj.voted &&

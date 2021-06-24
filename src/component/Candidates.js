@@ -12,6 +12,7 @@ class Candidates extends Component
                 {this.state.candidateList.map((cand) =>{
                     return(<Grid.Column width={3} key={cand.id}>
                         <Card
+                            style={{wordWrap:'break-word'}}
                             header={cand.name}
                             image='https://react.semantic-ui.com/images/avatar/large/elliot.jpg'
                             key={cand.id}
