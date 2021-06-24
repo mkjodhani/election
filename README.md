@@ -22,12 +22,12 @@ See the section about [running tests](https://facebook.github.io/create-react-ap
 
 ## Use Case Diagram
 
-![](docs/diagrams/UsecaseDiagram.svg)
+![](docs/diagrams/UsecaseDiagram.png)
 
 ## Activity  Diagram
 
-![](docs/diagrams/ActivityDiagram.svg)
+![](docs/diagrams/ActivityDiagram.png)
 
 ## Sequence Diagram
 
-![](docs/diagrams/SequenceDiagram.svg)
+![](docs/diagrams/SequenceDiagram.png)
